@@ -1,0 +1,98 @@
+{{ header }}
+<div id="account-login" class="container">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+    {% endfor %}
+  </ul>
+  <div class="row">
+    <div class="col-md-4 col-sm-12 col-xs-12">
+      <h1>{{ text_stores }}</h1><br>
+
+      {% for store in stores %}
+        <a href="https://maps.google.com/maps?q={{ store.geocode|url_encode }}&hl={{ store.geocode_hl }}&t=m&z=15" target="_blank"><b>{{ store.name }}</b></a><br>
+        {{ store.description }}<br><br>
+      {% endfor %}
+
+    </div>
+    <div class="col-md-8 col-sm-12 col-xs-12">
+
+      <div class="google-map-wrap">
+      {% if stores is not empty %}
+        <div id="map" style="height:500px"></div>
+      {% elseif map_api_key is empty %}
+        <div class="alert alert-info">
+          {{ text_hint }}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+          {{ text_no_record }}
+        </div>
+      {% endif %}
+    </div>
+
+    <script>
+
+    var markers = [];
+    
+    function initAutocomplete() {
+      var map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: -33.8688, lng: 151.2195},
+        zoom: 13,
+        mapTypeId: 'roadmap'
+      });
+
+      var bounds = new google.maps.LatLngBounds();
+
+      {% if stores is not empty %}
+        {% for store in stores %}
+
+          markers.push(new google.maps.Marker({
+            map: map,
+            title: '{{ store.name }}',
+            position: {lat: {{ store.latitude }}, lng: {{ store.longitude}} },
+            draggable:true
+          }));
+
+
+          // set map width fit to include all markers
+          position = new google.maps.LatLng({{ store.latitude }}, {{ store.longitude}});
+
+          var marker = new google.maps.Marker({
+              position: position,
+              map: map,
+              title: '{{ store.name }}'
+          });
+
+          var infowindow = new google.maps.InfoWindow({
+            content: '<b>{{ store.name }}</b></br>{{ store.description }}'
+          });
+
+          // Attach it to the marker we've just added
+          google.maps.event.addListener(marker, 'click', infoCallback(infowindow, marker));
+
+          bounds.extend(position);
+
+          map.fitBounds(bounds);
+
+        {% endfor %}
+
+      {% endif %}
+
+    }
+
+
+     function infoCallback(infowindow, marker) {
+       return function() { infowindow.open(map, marker); }; 
+    }
+
+   
+    </script>
+      
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ map_api_key }}&libraries=places&callback=initAutocomplete"
+       async defer></script>
+    </div>
+  </div>
+
+</div>
+{{ footer }}

@@ -1,0 +1,217 @@
+ {{ header }}
+ {{ column_left }}
+
+<div id="content">
+   
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-module" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
+           <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <select name="module_store_map_status" id="input-status" class="form-control">
+                {% if module_store_map_status %}
+                <option value="1" selected="selected">{{ text_enabled }}</option>
+                <option value="0">{{ text_disabled }}</option>
+                {% else %}
+                <option value="1">{{ text_enabled }}</option>
+                <option value="0" selected="selected">{{ text_disabled }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ text_api_key }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="module_store_map_api_key" value="{{ map_api_key }}" class="form-control {% if map_api_key is empty %}text-danger{% endif %}">
+            </div>
+          </div> 
+           
+        </form>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_store }}</h3>
+      </div>
+      <div class="panel-body">
+          <table class="table table-responsive table-bordered">
+            <thead>
+              <tr>
+                <th>{{ text_name }}</th>
+                <th>{{ text_description }}</th>
+                <th class="text-right">{{ text_action }}</th>
+              </tr>
+            </thead>
+            <body>
+              {% if stores is not empty %}
+                {% for store in stores %}
+                <tr>
+                  <td>{{ store.name }}</td>
+                  <td>{{ store.description }}</td>
+                  <td class="text-right">
+                    <a href="{{ edit_location_url }}&id={{ store.id }}" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i></a>
+                    <a href="{{ delete_location_url }}&id={{ store.id }}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="3">{{ text_no_record }}</td>
+              </tr>
+              {% endif %}
+            </body>
+          </table>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{% if store is not empty %}<i class="fa fa-pencil"></i> {{ text_edit_store }}{% else %}<i class="fa fa-plus"></i> {{ text_add_store }}{% endif %}</h3>
+      </div>
+      <div class="panel-body">
+        <form class="form-horizontal" action="{% if store is not empty %}{{ update_location_url }}&id={{ store.id }}{% else %}{{ add_location_url }}{% endif %}" method="POST">
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="store-name">{{ text_name }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="name" id="name" value="{{ store.name }}" placeholder="{{ text_name }}" class="form-control" required="">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label " for="store-description">{{ text_description }}</label>
+            <div class="col-sm-10">
+              <textarea class="form-control" name="description" id="description" rows="3" placeholder="{{ text_description }}" required="">{{ store.description }}</textarea>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="store-latitude">{{ text_latitude }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="latitude" id="latitude" value="{{ store.latitude }}" placeholder="{{ text_latitude }}" class="form-control" required="">
+            </div>
+          </div>
+           <div class="form-group">
+            <label class="col-sm-2 control-label" for="store-longitude">{{ text_longitude }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="longitude" id="longitude" value="{{ store.longitude }}" placeholder="{{ text_longitude }}" class="form-control" required="">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="save-button"></label>
+            <div class="col-sm-10">
+              <input type="submit" class="btn btn-primary" value="{% if store is not empty %}{{ text_update_store }}{% else %}{{ text_add_store }}{% endif %}">
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+     
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-map-marker"></i> {{ text_map }}</h3>
+      </div>
+      <div class="panel-body">
+        <p class="text-info">{{ text_search_hint }}</p>
+        <input type="text" name="" id="search-input" placeholder="{{ text_search }}" class="form-control form-group">
+
+        <div class="google-map-wrap">
+          {% if map_api_key is empty %}
+            <div class="alert alert-info">
+              {{ text_hint }}
+            </div>
+          {% else %}
+            <div id="map" style="height:500px"></div>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+ 
+</div>
+
+<script type="text/javascript" src='https://maps.google.com/maps/api/js?sensor=false&libraries=places&key={{ map_api_key }}'></script>
+
+<script src="https://rawgit.com/Logicify/jquery-locationpicker-plugin/master/dist/locationpicker.jquery.js"></script>
+
+<script type="text/javascript"><!--
+$('.date').datetimepicker({
+  pickTime: false
+});
+
+$('.time').datetimepicker({
+  pickDate: false
+});
+
+{% if store %}
+
+    $('#map').locationpicker({
+        location: {latitude: {{ store.latitude }}, longitude: {{ store.longitude }} },
+        radius: 1,
+        inputBinding: {
+            latitudeInput: $('#latitude'),
+            longitudeInput: $('#longitude'),
+            locationNameInput: $('#search-input')
+        },
+        enableAutocomplete: true,
+        onchanged: function (currentLocation, radius, isMarkerDropped) {
+        }
+    });
+
+{% else %}
+
+    $('#map').locationpicker({
+        location: {latitude: '', longitude: ''},
+        radius: 1,
+        inputBinding: {
+            latitudeInput: $('#latitude'),
+            longitudeInput: $('#longitude'),
+            locationNameInput: $('#search-input')
+        },
+        enableAutocomplete: true,
+        onchanged: function (currentLocation, radius, isMarkerDropped) {
+        }
+    });
+
+   
+
+
+{% endif %}
+
+ function myMap() {
+    var mapProp= {
+      center:new google.maps.LatLng(51.508742,-0.120850),
+      zoom:5,
+    };
+    var map = new google.maps.Map(document.getElementById("map"),mapProp);
+    }
+
+//--></script>
+
+{{ footer }}
